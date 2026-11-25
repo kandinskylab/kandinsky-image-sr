@@ -1,0 +1,62 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kandinsky-image-sr"
+version = "1.0.0"
+description = "Diffusers pipeline for Kandinsky Image Super-Resolution 2.0"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Kandinsky Lab" }]
+dependencies = [
+  # Diffusers loads the fp32-kept transformer modules only through accelerate.
+  "accelerate>=0.31.0",
+  "diffusers>=0.41.0",
+  "huggingface-hub>=1.32,<2",
+  "numpy>=1.26",
+  "Pillow>=10.0",
+  "safetensors>=0.8",
+  "torch>=2.6",
+  "transformers>=5.20,<6",
+  "click>=8.1",
+  "loguru>=0.7",
+  "omegaconf>=2.3",
+  "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+convert = ["omegaconf>=2.3", "PyYAML>=6.0"]
+# FlashAttention-2 (built from source, needs nvcc). Opt in at runtime with
+# pipe.transformer.set_attention_backend("flash"); the default is PyTorch SDPA.
+flash = ["flash-attn>=2.6.3"]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=5.0",
+  "ruff>=0.11",
+]
+
+[tool.uv]
+# flash-attn must NOT build in an isolated env: its build-system.requires pull torch
+# (gigabytes) and can hang. With isolation off, the real build needs are supplied
+# via extra-build-dependencies below.
+no-build-isolation-package = ["flash-attn"]
+
+[tool.uv.extra-build-dependencies]
+flash-attn = ["torch>=2.6", "setuptools", "packaging", "ninja"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kandinsky_image_sr"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
