@@ -34,17 +34,24 @@ small per-timestep Safetensors tables.
 
 ## Install
 
+The pipeline uses the Kandinsky 5 transformer included in Diffusers 0.41 or newer. Install it
+in one of two ways.
+
+**Option 1: pip.** Install torch built for your CUDA first, then the package:
+
 ```bash
+# replace cu128 with the index URL for your driver
+pip install torch --index-url https://download.pytorch.org/whl/cu128
 pip install git+https://github.com/kandinskylab/kandinsky-image-sr.git
 ```
 
-The pipeline uses the Kandinsky 5 transformer included in Diffusers 0.41 or newer.
-
-In a checkout, [`just`](https://github.com/casey/just) installs the package with the dev
-tools through [`uv`](https://docs.astral.sh/uv/). uv detects the NVIDIA driver and takes torch
-from the matching PyTorch wheel index:
+**Option 2: from a clone with [`just`](https://github.com/casey/just).** It installs the
+package with the dev tools through [`uv`](https://docs.astral.sh/uv/), which detects the
+NVIDIA driver and takes torch from the matching PyTorch wheel index:
 
 ```bash
+git clone https://github.com/kandinskylab/kandinsky-image-sr.git
+cd kandinsky-image-sr
 just setup        # create .venv
 just setup-conda  # or install into the active conda environment
 # force a specific build: just torch_backend=cu130 setup
