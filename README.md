@@ -20,7 +20,7 @@
 <div align="center">
 
 <a href="https://kandinskylab.ai/"><img alt="KandinskyLab" src="https://img.shields.io/badge/KandinskyLab-76E0B7?style=for-the-badge"></a>
-<img alt="HF Demo (coming soon)" src="https://img.shields.io/badge/HF%20Demo-coming%20soon-D9622B?style=for-the-badge">
+<a href="https://huggingface.co/spaces/kandinskylab/Kandinsky-ImageSR-2.0-Demo"><img alt="HF Demo" src="https://img.shields.io/badge/HF%20Demo-D9622B?style=for-the-badge"></a>
 <a href="https://huggingface.co/kandinskylab/Kandinsky-ImageSR-2.0"><img alt="HF Model" src="https://img.shields.io/badge/HF%20Model-FFD21E?style=for-the-badge"></a>
 
 </div>
