@@ -35,8 +35,6 @@ small per-timestep Safetensors tables.
 ## Install
 
 ```bash
-# install torch built for your CUDA first; replace cu128 with the index URL for your driver
-pip install torch --index-url https://download.pytorch.org/whl/cu128
 pip install git+https://github.com/kandinskylab/kandinsky-image-sr.git
 ```
 
