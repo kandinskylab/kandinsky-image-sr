@@ -50,22 +50,6 @@ just setup-conda  # or install into the active conda environment
 # force a specific build: just torch_backend=cu130 setup
 ```
 
-### FlashAttention-2 (optional)
-
-Attention runs on PyTorch SDPA by default. To use FlashAttention-2 instead, install the
-`flash` extra (Linux with CUDA; flash-attn is built from source and needs `nvcc`):
-
-```bash
-pip install "kandinsky-image-sr[flash] @ git+https://github.com/kandinskylab/kandinsky-image-sr.git"
-# in a checkout: just setup flash  (or just setup-conda flash)
-```
-
-and switch the transformer to it after loading the pipeline:
-
-```python
-pipe.transformer.set_attention_backend("flash")
-```
-
 ## Inference
 
 ```python
@@ -76,8 +60,6 @@ pipe = KandinskyImageSRPipeline.from_pretrained(
     "kandinskylab/Kandinsky-ImageSR-2.0",
     dtype=torch.bfloat16,
 ).to("cuda")
-# Optional: FlashAttention-2 instead of PyTorch SDPA (needs the `flash` extra, see Install).
-# pipe.transformer.set_attention_backend("flash")
 
 result = pipe(
     "input.png",
@@ -88,12 +70,11 @@ result = pipe(
 result.images[0].save("output.png")
 ```
 
-The same run is available from the command line and as a notebook. Both use FlashAttention-2
-when the `flash` extra is installed and fall back to PyTorch SDPA otherwise:
+The same run is available from the command line and as a notebook:
 
 ```bash
 python scripts/run_inference.py --input input.png --output output.png --upscale-factor 4
-# --attention flash|native forces a backend; see --help for creativity, seed and device
+# see --help for creativity, seed and device
 ```
 
 See [`notebooks/inference_example.ipynb`](notebooks/inference_example.ipynb) for the notebook.
@@ -112,15 +93,23 @@ windows. Small inputs are replicate-padded and cropped back to the exact request
 
 ### Inference time
 
-Measured on an NVIDIA H100 using square images.
+Measured on an NVIDIA H100 80GB (SXM) with square images: bfloat16, torch 2.13.0 (CUDA 12.9),
+default settings (`tile_batch_size=1`). Each time is the median of 5 full `pipe(...)` calls
+after 2 warm-up calls.
 
 | Input resolution | Upscale | Output resolution | Tile grid | Time per image |
 |---|:---:|---|:---:|---:|
-| 1K (1024 × 1024) | ×2 | 2K (2048 × 2048) | 3 × 3 | 1.79 s |
-| 1K (1024 × 1024) | ×4 | 4K (4096 × 4096) | 5 × 5 | 4.9 s |
-| 2K (2048 × 2048) | ×2 | 4K (4096 × 4096) | 5 × 5 | 4.9 s |
-| 2K (2048 × 2048) | ×4 | 8K (8192 × 8192) | 11 × 11 | 23.4 s |
-| 4K (4096 × 4096) | ×2 | 8K (8192 × 8192) | 11 × 11 | 23.4 s |
+| 1K (1024 × 1024) | ×2 | 2K (2048 × 2048) | 3 × 3 | 2.78 s |
+| 1K (1024 × 1024) | ×4 | 4K (4096 × 4096) | 5 × 5 | 7.80 s |
+| 2K (2048 × 2048) | ×2 | 4K (4096 × 4096) | 5 × 5 | 7.84 s |
+| 2K (2048 × 2048) | ×4 | 8K (8192 × 8192) | 11 × 11 | 37.5 s |
+| 4K (4096 × 4096) | ×2 | 8K (8192 × 8192) | 11 × 11 | 37.7 s |
+
+Reproduce with `scripts/test.py`:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python scripts/test.py --image photo.jpg --backend native
+```
 
 ## License
 

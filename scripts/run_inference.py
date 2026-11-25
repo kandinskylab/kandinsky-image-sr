@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Super-resolve one image with Kandinsky ImageSR 2.0.
 
-FlashAttention-2 is used when the `flash` extra is installed and the device is CUDA;
-otherwise the pipeline runs on PyTorch SDPA. Force either with `--attention`.
+Attention runs on PyTorch SDPA by default. `--attention flash` uses FlashAttention-2 (needs
+the `flash` extra) and `--attention auto` uses it only when it is available.
 
 Example:
     python scripts/run_inference.py --input input.png --output output.png --upscale-factor 4
@@ -36,7 +36,7 @@ class InferenceConfig(BaseModel):
     upscale_factor: Literal[2, 4] = 4
     creativity: int | None = Field(default=None, ge=0, le=8)
     one_step_t: float | None = None
-    attention: AttentionBackend = AttentionBackend.AUTO
+    attention: AttentionBackend = AttentionBackend.NATIVE
     device: str = "cuda"
     seed: int = 0
 
@@ -86,9 +86,9 @@ def run(config: InferenceConfig) -> None:
 @click.option(
     "--attention",
     type=click.Choice([backend.value for backend in AttentionBackend]),
-    default=AttentionBackend.AUTO.value,
+    default=AttentionBackend.NATIVE.value,
     show_default=True,
-    help="auto: FlashAttention-2 when available, PyTorch SDPA otherwise.",
+    help="native: PyTorch SDPA; flash: FlashAttention-2; auto: FlashAttention-2 when available, SDPA otherwise.",
 )
 @click.option("--device", default="cuda", show_default=True)
 @click.option("--seed", type=int, default=0, show_default=True)
